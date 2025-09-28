@@ -19,7 +19,8 @@ const cardNumberErrorMsg = document.getElementById('number-error');
 const DateErrorMsg = document.getElementById('date-error');
 const cvcErrorMsg = document.getElementById('cvc-error');
 const form = document.querySelector('.form');
-const completed = document.querySelector('.completed')
+const completed = document.querySelector('.completed');
+const cards = document.querySelectorAll('span');
 
 inputCardNumber.addEventListener('input', (e) => {
     const cardNumber = e.target.value.replace(/\D/g, "");
@@ -54,7 +55,9 @@ inputMonth.addEventListener('input', () => {
         outputExpMonth.innerText = '00';
     } else if (/[a-zA-Z]/.test(inputMonth.value)) {
         return false;
-    } else if (inputMonth.value > 12 ) {
+    } else if (inputMonth.value < new Date().getMonth() + 2) {
+        return false;
+    } else if (inputMonth.value > 12) {
         return false;
     } else {
         outputExpMonth.innerText = inputMonth.value;
@@ -138,12 +141,11 @@ const numberCheck = (inputCardNumber) => {
     }
 }
 
-const dateCheck = (inputMonth, inputYear) => {
+const monthCheck = (inputMonth) => {
   const cardMonth = inputMonth.value;
-  const cardYear = inputYear.value;
 
 
-  if (cardMonth === '' && cardYear === '') {
+  if (cardMonth === '') {
     inputMonth.style.border = '1px solid hsl(0, 100%, 66%)';
     inputYear.style.border = '1px solid hsl(0, 100%, 66%)';
     DateErrorMsg.innerText = "Can't be blank";
@@ -156,8 +158,15 @@ const dateCheck = (inputMonth, inputYear) => {
     DateErrorMsg.style.color = "hsl(0, 100%, 66%)";
     DateErrorMsg.style.fontSize = '.75rem';
     DateErrorMsg.style.marginTop = '.5em';
-    return false;;
-  }  else if (cardMonth > 12) {
+    return false;
+  } else if (inputMonth.value < new Date().getMonth() + 2) {
+    inputMonth.style.border = '1px solid hsl(0, 100%, 66%)';
+    DateErrorMsg.innerText = "Can't be the exp. month";
+    DateErrorMsg.style.color = "hsl(0, 100%, 66%)";
+    DateErrorMsg.style.fontSize = '.75rem';
+    DateErrorMsg.style.marginTop = '.5em';
+    return false;
+  } else if (cardMonth > 12) {
     inputMonth.style.border = '1px solid hsl(0, 100%, 66%)';
     DateErrorMsg.innerText = "Not a month";
     DateErrorMsg.style.color = "hsl(0, 100%, 66%)";
@@ -168,7 +177,16 @@ const dateCheck = (inputMonth, inputYear) => {
     inputMonth.style.borderColor = 'hsl(270, 3%, 87%)';
     inputYear.style.borderColor = 'hsl(270, 3%, 87%)';
 
-        if (cardYear === '') {
+    return true;
+  }
+
+  
+};
+
+const yearCheck = (inputYear) => {
+    const cardYear = inputYear.value;
+
+    if (cardYear === '') {
             inputYear.style.border = '1px solid hsl(0, 100%, 66%)';
             DateErrorMsg.innerText = "Can't be blank";
             DateErrorMsg.style.color = "hsl(0, 100%, 66%)";
@@ -181,9 +199,9 @@ const dateCheck = (inputMonth, inputYear) => {
             DateErrorMsg.style.fontSize = '.75rem';
             DateErrorMsg.style.marginTop = '.5em';
             return false;
-        } else if (cardYear < 26) {
+        } else if (cardYear < new Date().getFullYear() % 100 + 1) {
             inputYear.style.border = '1px solid hsl(0, 100%, 66%)';
-            DateErrorMsg.innerText = "Can't be the year";
+            DateErrorMsg.innerText = "Can't be the exp. year";
             DateErrorMsg.style.color = 'hsl(0, 100%, 66%)';
             DateErrorMsg.style.fontSize = '.75rem';
             DateErrorMsg.style.marginTop = '.5em';
@@ -193,8 +211,7 @@ const dateCheck = (inputMonth, inputYear) => {
             inputYear.style.borderColor = 'hsl(270, 3%, 87%)';
             return true;
         }
-  }
-};
+}
 
 const cvcCheck = (inputCVC) => {
     const cardCvc = inputCVC.value;
@@ -232,13 +249,21 @@ const cvcCheck = (inputCVC) => {
 confirmButton.addEventListener('click', (e) => {
     nameCheck(inputCardName);
     numberCheck(inputCardNumber);
-    dateCheck(inputMonth, inputYear);
+    monthCheck(inputMonth);
+    yearCheck(inputYear);
     cvcCheck(inputCVC)
     e.preventDefault();
 
-    if (nameCheck(inputCardName) && numberCheck(inputCardNumber) && dateCheck(inputMonth, inputYear) && cvcCheck(inputCVC)) {
+    if (nameCheck(inputCardName) && numberCheck(inputCardNumber) && monthCheck(inputMonth) && yearCheck(inputYear) && cvcCheck(inputCVC)) {
         form.classList.add('hide');
         completed.classList.remove('hide');
+
+        form.reset();
+        outputAcctNumber.innerText = "0000 0000 0000 0000";
+        outputCardName.innerText = "Jane Appleseed";
+        outputExpMonth.innerText = "00";
+        outputExpYear.innerText = "00";
+        outputCvc.innerText = "000";
         
     }
 
